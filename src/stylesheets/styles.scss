@@ -1,2 +1,14 @@
 // Load CSS Reset from NPM
-@import "~normalize.css"
+@import "~normalize.css";
+
+#page-heading {
+  padding: 1rem;
+}
+
+#error-container {
+  display: none;
+  width: 100%;
+  background-color: red;
+  color: white;
+  padding: 0.5rem
+}

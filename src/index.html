@@ -2,13 +2,25 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Static Site Boilerplate</title>
+    <title>Columbia River Historical Daily Water Levels</title>
     <meta name="description" content="" />
 </head>
 <body>
-  <h1>hello word</h1>
+  <div id="error-container">
+  </div>
+  <div id="page-heading">
+    <h3>Columbia River/Franklin Roosevelt Lake: Historical Water Levels at Grand Coulee Dam</h3>
+    <p>
+      Begin: <span id="begin-date" style=""></span>,
+      End: <span id="end-date" style=""></span>
+    </p>
+  </div>
 
-  <div id="mydata"></div>
+  <div id="mydata">
+    <img height="40" src="https://gifimage.net/wp-content/uploads/2017/06/loading-gif-15.gif" alt="">
+  </div>
+
+  <p>Source: <a href="https://waterdata.usgs.gov/nwis/dv?referred_module=sw&site_no=12436000">USGS National Water Information Systems</a></p>
 
 </body>
 </html>

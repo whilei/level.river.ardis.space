@@ -7,7 +7,22 @@ window.$ = $;
 
 console.log('hello from console world');
 
-$('h1').first().html('heeeelloooo worlllddd');
+const today = new Date();
+
+// query params of site allow for dynamic query and display using arbitrary start and end dates
+const params = new URL(window.location.href).searchParams;
+const beginDateStr = params.get('begin_date') || '1980-01-01';
+const endDateStr = params.get('end_date') || `${today.getUTCFullYear()}-${(today.getMonth()+1).toString().padStart(2,'0')}-${(today.getDate()).toString().padStart(2,'0')}`;
+
+const beginDateDate = new Date(beginDateStr);
+const endDateDate = new Date(endDateStr);
+
+$('#begin-date').html(`${beginDateStr}`);
+$('#end-date').html(`${endDateStr}`);
+
+function displayError(err) {
+  $('#error-container').html(err.toString()).show();
+}
 
 // Copyright 2021 Observable, Inc.
 // Released under the ISC license.
@@ -40,7 +55,6 @@ function LineChart(data, {
   strokeWidth = 1.5, // stroke width of line
   strokeOpacity, // stroke opacity of line
   mixBlendMode = "multiply", // blend mode of lines
-  voronoi // show a Voronoi overlay? (for debugging)
 } = {}) {
   // Compute values.
   const X = d3.map(data, x);
@@ -52,7 +66,9 @@ function LineChart(data, {
 
   // Compute default domains, and unique the z-domain.
   if (xDomain === undefined) xDomain = d3.extent(X);
-  if (yDomain === undefined) yDomain = [0, d3.max(Y, d => typeof d === "string" ? +d : d)];
+  if (yDomain === undefined) yDomain = [
+    d3.min(Y, d => typeof d === "string" ? +d : d),
+    d3.max(Y, d => typeof d === "string" ? +d : d)];
   if (zDomain === undefined) zDomain = Z;
   zDomain = new d3.InternSet(zDomain);
 
@@ -86,15 +102,6 @@ function LineChart(data, {
       .on("pointerleave", pointerleft)
       .on("touchstart", event => event.preventDefault());
 
-  // An optional Voronoi display (for fun).
-  if (voronoi) svg.append("path")
-      .attr("fill", "none")
-      .attr("stroke", "#ccc")
-      .attr("d", d3.Delaunay
-        .from(I, i => xScale(X[i]), i => yScale(Y[i]))
-        .voronoi([0, 0, width, height])
-        .render());
-
   svg.append("g")
       .attr("transform", `translate(0,${height - marginBottom})`)
       .call(xAxis);
@@ -103,7 +110,7 @@ function LineChart(data, {
       .attr("transform", `translate(${marginLeft},0)`)
       .call(yAxis)
       .call(g => g.select(".domain").remove())
-      .call(voronoi ? () => {} : g => g.selectAll(".tick line").clone()
+      .call(g => g.selectAll(".tick line").clone()
           .attr("x2", width - marginLeft - marginRight)
           .attr("stroke-opacity", 0.1))
       .call(g => g.append("text")
@@ -163,14 +170,23 @@ function LineChart(data, {
   return Object.assign(svg.node(), {value: null});
 }
 
-fetch('https://waterdata.usgs.gov/nwis/dv?cb_62614=on&format=rdb&site_no=12436000&referred_module=sw&period=&begin_date=1980-04-10&end_date=2022-04-10')
+function myColorizer(z) {
+  const zN = +z;
+  if (zN === today.getUTCFullYear()) return 'red';
+
+  let interpolator = d3.scaleLinear()
+    .domain([beginDateDate.getUTCFullYear() - 2, endDateDate.getUTCFullYear()]);
+
+  return d3.interpolateBlues(interpolator(zN));
+}
+
+fetch(`https://waterdata.usgs.gov/nwis/dv?cb_62614=on&format=rdb&site_no=12436000&referred_module=sw&period=&begin_date=${beginDateStr}&end_date=${endDateStr}`)
   .then((res) => {
-    console.log('ok response from data source', res);
     res.text()
     .then((txt) => {
-      console.log('data is text', txt);
+
+      // split line delimited
       let data = txt.toString().split(/(?:\r\n|\r|\n)/g);
-      console.log('data is', data.length, 'lines');
 
       // remove comments
       let lastCommentI = 0;
@@ -185,8 +201,7 @@ fetch('https://waterdata.usgs.gov/nwis/dv?cb_62614=on&format=rdb&site_no=1243600
       // remove header rows
       data.splice(0, 2);
 
-      console.log('cleaned data is', data.length, 'lines');
-
+      // format data for d3
       for (let i = 0; i < data.length; i++) {
         const delimited = data[i].split(/\s/g);
         const level = delimited[3];
@@ -194,36 +209,30 @@ fetch('https://waterdata.usgs.gov/nwis/dv?cb_62614=on&format=rdb&site_no=1243600
           data.splice(i, 1);
           continue;
         }
+
         const d = new Date(delimited[2]);
+        const measurementYear = d.getUTCFullYear();
+        d.setUTCFullYear(today.getUTCFullYear()); // reset the original date's year to current
+
         data[i] = {
-          date: d, // TODO: parse me?
-          level: level,
-          division: d.getUTCFullYear(),
+          date: d,
+          level: +level,
+          measurementYear: `${measurementYear}`,
         };
       }
-
-      // for (let d of data) {
-      //   const $p = $('<p>').html(`${JSON.stringify(d)}`);
-      //   $mydata.append($p);
-      // }
 
       const chart = LineChart(data, {
         x: d => d.date,
         y: d => d.level,
-        z: d => d.division,
-        yLabel: "↑ Unemployment (%)",
-        width: 1000,
-        height: 500,
-        color: "steelblue",
-        voronoi: false // if true, show Voronoi overlay
+        z: d => d.measurementYear,
+        yLabel: "↑ Water Level (ft)",
+        width: window.innerWidth,
+        height: 800,
+        color: myColorizer,
       });
 
-      $('body').append(chart);
+      $('#mydata').html(chart);
     })
-    .catch((err) => {
-      console.error('data failed to become text', err);
-    });
+    .catch(displayError);
   })
-  .catch((err) => {
-    console.error('failed to fetch data from source', err);
-  });
+  .catch(displayError);
