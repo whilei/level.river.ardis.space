@@ -1,4 +1,3 @@
 node -v
 npm -v
-gyp -v
 uname -a
