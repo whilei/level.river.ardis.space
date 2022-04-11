@@ -49,31 +49,33 @@ function LineChart(data, {
   yFormat, // a format specifier string for the y-axis
   yLabel, // a label for the y-axis
   zDomain, // array of z-values
-  color = "currentColor", // stroke color of line, as a constant or a function of *z*
+  color = 'currentColor', // stroke color of line, as a constant or a function of *z*
   strokeLinecap, // stroke line cap of line
   strokeLinejoin, // stroke line join of line
   strokeWidth = 1.5, // stroke width of line
   strokeOpacity, // stroke opacity of line
-  mixBlendMode = "multiply", // blend mode of lines
+  mixBlendMode = 'multiply', // blend mode of lines
 } = {}) {
   // Compute values.
   const X = d3.map(data, x);
   const Y = d3.map(data, y);
   const Z = d3.map(data, z);
-  const O = d3.map(data, d => d);
+  const O = d3.map(data, (d) => d);
   if (defined === undefined) defined = (d, i) => !isNaN(X[i]) && !isNaN(Y[i]);
   const D = d3.map(data, defined);
 
   // Compute default domains, and unique the z-domain.
   if (xDomain === undefined) xDomain = d3.extent(X);
-  if (yDomain === undefined) yDomain = [
-    d3.min(Y, d => typeof d === "string" ? +d : d),
-    d3.max(Y, d => typeof d === "string" ? +d : d)];
+  if (yDomain === undefined) {
+    yDomain = [
+      d3.min(Y, (d) => (typeof d === 'string' ? +d : d)),
+      d3.max(Y, (d) => (typeof d === 'string' ? +d : d))];
+  }
   if (zDomain === undefined) zDomain = Z;
   zDomain = new d3.InternSet(zDomain);
 
   // Omit any data not present in the z-domain.
-  const I = d3.range(X.length).filter(i => zDomain.has(Z[i]));
+  const I = d3.range(X.length).filter((i) => zDomain.has(Z[i]));
 
   // Construct scales and axes.
   const xScale = xType(xDomain, xRange);
@@ -86,85 +88,85 @@ function LineChart(data, {
 
   // Construct a line generator.
   const line = d3.line()
-    .defined(i => D[i])
+    .defined((i) => D[i])
     .curve(curve)
-    .x(i => xScale(X[i]))
-    .y(i => yScale(Y[i]));
+    .x((i) => xScale(X[i]))
+    .y((i) => yScale(Y[i]));
 
-  const svg = d3.create("svg")
-    .attr("width", width)
-    .attr("height", height)
-    .attr("viewBox", [0, 0, width, height])
-    .attr("style", "max-width: 100%; height: auto; height: intrinsic;")
-    .style("-webkit-tap-highlight-color", "transparent")
-    .on("pointerenter", pointerentered)
-    .on("pointermove", pointermoved)
-    .on("pointerleave", pointerleft)
-    .on("touchstart", event => event.preventDefault());
+  const svg = d3.create('svg')
+    .attr('width', width)
+    .attr('height', height)
+    .attr('viewBox', [0, 0, width, height])
+    .attr('style', 'max-width: 100%; height: auto; height: intrinsic;')
+    .style('-webkit-tap-highlight-color', 'transparent')
+    .on('pointerenter', pointerentered)
+    .on('pointermove', pointermoved)
+    .on('pointerleave', pointerleft)
+    .on('touchstart', (event) => event.preventDefault());
 
-  svg.append("g")
-    .attr("transform", `translate(0,${height - marginBottom})`)
+  svg.append('g')
+    .attr('transform', `translate(0,${height - marginBottom})`)
     .call(xAxis);
 
-  svg.append("g")
-    .attr("transform", `translate(${marginLeft},0)`)
+  svg.append('g')
+    .attr('transform', `translate(${marginLeft},0)`)
     .call(yAxis)
-    .call(g => g.select(".domain").remove())
-    .call(g => g.selectAll(".tick line").clone()
-      .attr("x2", width - marginLeft - marginRight)
-      .attr("stroke-opacity", 0.1))
-    .call(g => g.append("text")
-      .attr("x", -marginLeft)
-      .attr("y", 10)
-      .attr("fill", "currentColor")
-      .attr("text-anchor", "start")
+    .call((g) => g.select('.domain').remove())
+    .call((g) => g.selectAll('.tick line').clone()
+      .attr('x2', width - marginLeft - marginRight)
+      .attr('stroke-opacity', 0.1))
+    .call((g) => g.append('text')
+      .attr('x', -marginLeft)
+      .attr('y', 10)
+      .attr('fill', 'currentColor')
+      .attr('text-anchor', 'start')
       .text(yLabel));
 
-  const path = svg.append("g")
-    .attr("fill", "none")
-    .attr("stroke", typeof color === "string" ? color : null)
-    .attr("stroke-linecap", strokeLinecap)
-    .attr("stroke-linejoin", strokeLinejoin)
-    .attr("stroke-width", strokeWidth)
-    .attr("stroke-opacity", strokeOpacity)
-    .selectAll("path")
-    .data(d3.group(I, i => Z[i]))
-    .join("path")
-    .style("mix-blend-mode", mixBlendMode)
-    .attr("stroke", typeof color === "function" ? ([z]) => color(z) : null)
-    .attr("d", ([, I]) => line(I));
+  const path = svg.append('g')
+    .attr('fill', 'none')
+    .attr('stroke', typeof color === 'string' ? color : null)
+    .attr('stroke-linecap', strokeLinecap)
+    .attr('stroke-linejoin', strokeLinejoin)
+    .attr('stroke-width', strokeWidth)
+    .attr('stroke-opacity', strokeOpacity)
+    .selectAll('path')
+    .data(d3.group(I, (i) => Z[i]))
+    .join('path')
+    .style('mix-blend-mode', mixBlendMode)
+    .attr('stroke', typeof color === 'function' ? ([z]) => color(z) : null)
+    .attr('d', ([, I]) => line(I));
 
-  const dot = svg.append("g")
-    .attr("display", "none");
+  const dot = svg.append('g')
+    .attr('display', 'none');
 
-  dot.append("circle")
-    .attr("r", 2.5);
+  dot.append('circle')
+    .attr('r', 2.5);
 
-  dot.append("text")
-    .attr("font-family", "sans-serif")
-    .attr("font-size", 10)
-    .attr("text-anchor", "middle")
-    .attr("y", -8);
+  dot.append('text')
+    .attr('font-family', 'sans-serif')
+    .attr('font-size', 10)
+    .attr('text-anchor', 'middle')
+    .attr('y', -8);
 
   function pointermoved(event) {
     const [xm, ym] = d3.pointer(event);
-    const i = d3.least(I, i => Math.hypot(xScale(X[i]) - xm, yScale(Y[i]) - ym)); // closest point
-    path.style("stroke", ([z]) => Z[i] === z ? null : "#ddd").filter(([z]) => Z[i] === z).raise();
-    dot.attr("transform", `translate(${xScale(X[i])},${yScale(Y[i])})`);
-    if (T) dot.select("text").text(T[i]);
-    svg.property("value", O[i]).dispatch("input", { bubbles: true });
+    const i = d3.least(I, (i) => Math.hypot(xScale(X[i]) - xm, yScale(Y[i]) - ym)); // closest point
+    path.style('stroke', ([z]) => (Z[i] === z ? null : '#ddd')).filter(([z]) => Z[i] === z).raise();
+    dot.attr('transform', `translate(${xScale(X[i])},${yScale(Y[i])})`);
+    if (T) dot.select('text').text(T[i]);
+    svg.property('value', O[i]).dispatch('input', { bubbles: true });
   }
 
   function pointerentered() {
-    path.style("mix-blend-mode", null).style("stroke", "#ddd");
-    dot.attr("display", null);
+    path.style('mix-blend-mode', null).style('stroke', '#ddd');
+    dot.attr('display', null);
   }
 
   function pointerleft() {
-    path.style("mix-blend-mode", "multiply").style("stroke", null);
-    dot.attr("display", "none");
+    path.style('mix-blend-mode', 'multiply').style('stroke', null);
+    dot.attr('display', 'none');
     svg.node().value = null;
-    svg.dispatch("input", { bubbles: true });
+    svg.dispatch('input', { bubbles: true });
   }
 
   return Object.assign(svg.node(), { value: null });
@@ -174,7 +176,7 @@ function myColorizer(z) {
   const zN = +z;
   if (zN === today.getUTCFullYear()) return 'red';
 
-  let interpolator = d3.scaleLinear()
+  const interpolator = d3.scaleLinear()
     .domain([beginDateDate.getUTCFullYear() - 2, endDateDate.getUTCFullYear()]);
 
   return d3.interpolateBlues(interpolator(zN));
@@ -184,9 +186,8 @@ fetch(`https://waterdata.usgs.gov/nwis/dv?cb_62614=on&format=rdb&site_no=1243600
   .then((res) => {
     res.text()
       .then((txt) => {
-
         // split line delimited
-        let data = txt.toString().split(/(?:\r\n|\r|\n)/g);
+        const data = txt.toString().split(/(?:\r\n|\r|\n)/g);
 
         // remove comments
         let lastCommentI = 0;
@@ -222,10 +223,10 @@ fetch(`https://waterdata.usgs.gov/nwis/dv?cb_62614=on&format=rdb&site_no=1243600
         }
 
         const chart = LineChart(data, {
-          x: d => d.date,
-          y: d => d.level,
-          z: d => d.measurementYear,
-          yLabel: "↑ Water Level (ft)",
+          x: (d) => d.date,
+          y: (d) => d.level,
+          z: (d) => d.measurementYear,
+          yLabel: '↑ Water Level (ft)',
           width: window.innerWidth,
           height: 800,
           color: myColorizer,
