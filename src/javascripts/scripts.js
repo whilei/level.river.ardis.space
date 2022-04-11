@@ -12,7 +12,7 @@ const today = new Date();
 // query params of site allow for dynamic query and display using arbitrary start and end dates
 const params = new URL(window.location.href).searchParams;
 const beginDateStr = params.get('begin_date') || '1980-01-01';
-const endDateStr = params.get('end_date') || `${today.getUTCFullYear()}-${(today.getMonth()+1).toString().padStart(2,'0')}-${(today.getDate()).toString().padStart(2,'0')}`;
+const endDateStr = params.get('end_date') || `${today.getUTCFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${(today.getDate()).toString().padStart(2, '0')}`;
 
 const beginDateDate = new Date(beginDateStr);
 const endDateDate = new Date(endDateStr);
@@ -86,65 +86,65 @@ function LineChart(data, {
 
   // Construct a line generator.
   const line = d3.line()
-      .defined(i => D[i])
-      .curve(curve)
-      .x(i => xScale(X[i]))
-      .y(i => yScale(Y[i]));
+    .defined(i => D[i])
+    .curve(curve)
+    .x(i => xScale(X[i]))
+    .y(i => yScale(Y[i]));
 
   const svg = d3.create("svg")
-      .attr("width", width)
-      .attr("height", height)
-      .attr("viewBox", [0, 0, width, height])
-      .attr("style", "max-width: 100%; height: auto; height: intrinsic;")
-      .style("-webkit-tap-highlight-color", "transparent")
-      .on("pointerenter", pointerentered)
-      .on("pointermove", pointermoved)
-      .on("pointerleave", pointerleft)
-      .on("touchstart", event => event.preventDefault());
+    .attr("width", width)
+    .attr("height", height)
+    .attr("viewBox", [0, 0, width, height])
+    .attr("style", "max-width: 100%; height: auto; height: intrinsic;")
+    .style("-webkit-tap-highlight-color", "transparent")
+    .on("pointerenter", pointerentered)
+    .on("pointermove", pointermoved)
+    .on("pointerleave", pointerleft)
+    .on("touchstart", event => event.preventDefault());
 
   svg.append("g")
-      .attr("transform", `translate(0,${height - marginBottom})`)
-      .call(xAxis);
+    .attr("transform", `translate(0,${height - marginBottom})`)
+    .call(xAxis);
 
   svg.append("g")
-      .attr("transform", `translate(${marginLeft},0)`)
-      .call(yAxis)
-      .call(g => g.select(".domain").remove())
-      .call(g => g.selectAll(".tick line").clone()
-          .attr("x2", width - marginLeft - marginRight)
-          .attr("stroke-opacity", 0.1))
-      .call(g => g.append("text")
-          .attr("x", -marginLeft)
-          .attr("y", 10)
-          .attr("fill", "currentColor")
-          .attr("text-anchor", "start")
-          .text(yLabel));
+    .attr("transform", `translate(${marginLeft},0)`)
+    .call(yAxis)
+    .call(g => g.select(".domain").remove())
+    .call(g => g.selectAll(".tick line").clone()
+      .attr("x2", width - marginLeft - marginRight)
+      .attr("stroke-opacity", 0.1))
+    .call(g => g.append("text")
+      .attr("x", -marginLeft)
+      .attr("y", 10)
+      .attr("fill", "currentColor")
+      .attr("text-anchor", "start")
+      .text(yLabel));
 
   const path = svg.append("g")
-      .attr("fill", "none")
-      .attr("stroke", typeof color === "string" ? color : null)
-      .attr("stroke-linecap", strokeLinecap)
-      .attr("stroke-linejoin", strokeLinejoin)
-      .attr("stroke-width", strokeWidth)
-      .attr("stroke-opacity", strokeOpacity)
+    .attr("fill", "none")
+    .attr("stroke", typeof color === "string" ? color : null)
+    .attr("stroke-linecap", strokeLinecap)
+    .attr("stroke-linejoin", strokeLinejoin)
+    .attr("stroke-width", strokeWidth)
+    .attr("stroke-opacity", strokeOpacity)
     .selectAll("path")
     .data(d3.group(I, i => Z[i]))
     .join("path")
-      .style("mix-blend-mode", mixBlendMode)
-      .attr("stroke", typeof color === "function" ? ([z]) => color(z) : null)
-      .attr("d", ([, I]) => line(I));
+    .style("mix-blend-mode", mixBlendMode)
+    .attr("stroke", typeof color === "function" ? ([z]) => color(z) : null)
+    .attr("d", ([, I]) => line(I));
 
   const dot = svg.append("g")
-      .attr("display", "none");
+    .attr("display", "none");
 
   dot.append("circle")
-      .attr("r", 2.5);
+    .attr("r", 2.5);
 
   dot.append("text")
-      .attr("font-family", "sans-serif")
-      .attr("font-size", 10)
-      .attr("text-anchor", "middle")
-      .attr("y", -8);
+    .attr("font-family", "sans-serif")
+    .attr("font-size", 10)
+    .attr("text-anchor", "middle")
+    .attr("y", -8);
 
   function pointermoved(event) {
     const [xm, ym] = d3.pointer(event);
@@ -152,7 +152,7 @@ function LineChart(data, {
     path.style("stroke", ([z]) => Z[i] === z ? null : "#ddd").filter(([z]) => Z[i] === z).raise();
     dot.attr("transform", `translate(${xScale(X[i])},${yScale(Y[i])})`);
     if (T) dot.select("text").text(T[i]);
-    svg.property("value", O[i]).dispatch("input", {bubbles: true});
+    svg.property("value", O[i]).dispatch("input", { bubbles: true });
   }
 
   function pointerentered() {
@@ -164,10 +164,10 @@ function LineChart(data, {
     path.style("mix-blend-mode", "multiply").style("stroke", null);
     dot.attr("display", "none");
     svg.node().value = null;
-    svg.dispatch("input", {bubbles: true});
+    svg.dispatch("input", { bubbles: true });
   }
 
-  return Object.assign(svg.node(), {value: null});
+  return Object.assign(svg.node(), { value: null });
 }
 
 function myColorizer(z) {
@@ -183,56 +183,56 @@ function myColorizer(z) {
 fetch(`https://waterdata.usgs.gov/nwis/dv?cb_62614=on&format=rdb&site_no=12436000&referred_module=sw&period=&begin_date=${beginDateStr}&end_date=${endDateStr}`)
   .then((res) => {
     res.text()
-    .then((txt) => {
+      .then((txt) => {
 
-      // split line delimited
-      let data = txt.toString().split(/(?:\r\n|\r|\n)/g);
+        // split line delimited
+        let data = txt.toString().split(/(?:\r\n|\r|\n)/g);
 
-      // remove comments
-      let lastCommentI = 0;
-      for (let i = 0; i < data.length; i++) {
-        if (data[i].indexOf('#') !== 0) {
-          lastCommentI = i;
-          break;
+        // remove comments
+        let lastCommentI = 0;
+        for (let i = 0; i < data.length; i++) {
+          if (data[i].indexOf('#') !== 0) {
+            lastCommentI = i;
+            break;
+          }
         }
-      }
-      data.splice(0, lastCommentI);
+        data.splice(0, lastCommentI);
 
-      // remove header rows
-      data.splice(0, 2);
+        // remove header rows
+        data.splice(0, 2);
 
-      // format data for d3
-      for (let i = 0; i < data.length; i++) {
-        const delimited = data[i].split(/\s/g);
-        const level = delimited[3];
-        if (typeof level === 'undefined' || level.isNaN || level <= 0) {
-          data.splice(i, 1);
-          continue;
+        // format data for d3
+        for (let i = 0; i < data.length; i++) {
+          const delimited = data[i].split(/\s/g);
+          const level = delimited[3];
+          if (typeof level === 'undefined' || level.isNaN || level <= 0) {
+            data.splice(i, 1);
+            continue;
+          }
+
+          const d = new Date(delimited[2]);
+          const measurementYear = d.getUTCFullYear();
+          d.setUTCFullYear(today.getUTCFullYear()); // reset the original date's year to current
+
+          data[i] = {
+            date: d,
+            level: +level,
+            measurementYear: `${measurementYear}`,
+          };
         }
 
-        const d = new Date(delimited[2]);
-        const measurementYear = d.getUTCFullYear();
-        d.setUTCFullYear(today.getUTCFullYear()); // reset the original date's year to current
+        const chart = LineChart(data, {
+          x: d => d.date,
+          y: d => d.level,
+          z: d => d.measurementYear,
+          yLabel: "↑ Water Level (ft)",
+          width: window.innerWidth,
+          height: 800,
+          color: myColorizer,
+        });
 
-        data[i] = {
-          date: d,
-          level: +level,
-          measurementYear: `${measurementYear}`,
-        };
-      }
-
-      const chart = LineChart(data, {
-        x: d => d.date,
-        y: d => d.level,
-        z: d => d.measurementYear,
-        yLabel: "↑ Water Level (ft)",
-        width: window.innerWidth,
-        height: 800,
-        color: myColorizer,
-      });
-
-      $('#mydata').html(chart);
-    })
-    .catch(displayError);
+        $('#mydata').html(chart);
+      })
+      .catch(displayError);
   })
   .catch(displayError);
