@@ -9,10 +9,11 @@ window.$ = $;
 console.log('hello from console world');
 
 const today = new Date();
+const defaultRangeYears = 40; // How many years back from today.
 
 // query params of site allow for dynamic query and display using arbitrary start and end dates
 const params = new URL(window.location.href).searchParams;
-const beginDateStr = params.get('begin_date') || '1980-01-01';
+const beginDateStr = params.get('begin_date') || `${today.getUTCFullYear()-defaultRangeYears}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${(today.getDate()).toString().padStart(2, '0')}`;
 const endDateStr = params.get('end_date') || `${today.getUTCFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${(today.getDate()).toString().padStart(2, '0')}`;
 
 const beginDateDate = new Date(beginDateStr);
@@ -32,7 +33,9 @@ function myColorizer(z) {
   if (zN === today.getUTCFullYear()) return 'red';
 
   const interpolator = d3.scaleLinear()
-    .domain([beginDateDate.getUTCFullYear() - 2, endDateDate.getUTCFullYear()]);
+    .domain([
+      beginDateDate.getUTCFullYear() - 2 /* prevents oldest years from being white */,
+      endDateDate.getUTCFullYear()]);
 
   return d3.interpolateBlues(interpolator(zN));
 }
