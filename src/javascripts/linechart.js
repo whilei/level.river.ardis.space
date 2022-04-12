@@ -49,6 +49,7 @@ export default function LineChart(data, {
   }
   if (zDomain === undefined) zDomain = Z;
   zDomain = new d3.InternSet(zDomain);
+  console.log('zDomain', zDomain, typeof zDomain);
 
   // Omit any data not present in the z-domain.
   const I = d3.range(X.length).filter((i) => zDomain.has(Z[i]));
@@ -98,6 +99,7 @@ export default function LineChart(data, {
       .attr('text-anchor', 'start')
       .text(yLabel));
 
+  // Construct scales and axes.
   const path = svg.append('g')
     .attr('fill', 'none')
     .attr('stroke', typeof color === 'string' ? color : null)
