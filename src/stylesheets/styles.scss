@@ -1,6 +1,10 @@
 // Load CSS Reset from NPM
 @import "~normalize.css";
 
+body {
+  padding: 1rem;
+}
+
 #page-heading {
   // padding: 1rem;
 }

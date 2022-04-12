@@ -129,7 +129,10 @@ export default function LineChart(data, {
   function pointermoved(event) {
     const [xm, ym] = d3.pointer(event);
     const i = d3.least(I, (i) => Math.hypot(xScale(X[i]) - xm, yScale(Y[i]) - ym)); // closest point
-    path.style('stroke', ([z]) => (Z[i] === z ? null : '#ddd')).filter(([z]) => Z[i] === z).raise();
+    path
+      .style('stroke', ([z]) => (Z[i] === z ? null : '#ddd'))
+      // .style('stroke-width', ([z]) => (Z[i] === z ? strokeWidth * 2 : strokeWidth))
+      .filter(([z]) => Z[i] === z).raise();
     dot.attr('transform', `translate(${xScale(X[i])},${yScale(Y[i])})`);
     if (T) dot.select('text').text(T[i]);
     svg.property('value', O[i]).dispatch('input', { bubbles: true });
@@ -141,7 +144,7 @@ export default function LineChart(data, {
   }
 
   function pointerleft() {
-    path.style('mix-blend-mode', 'multiply').style('stroke', null);
+    path.style('mix-blend-mode', 'multiply').style('stroke', null); // .style('stroke-width', strokeWidth);
     dot.attr('display', 'none');
     svg.node().value = null;
     svg.dispatch('input', { bubbles: true });
