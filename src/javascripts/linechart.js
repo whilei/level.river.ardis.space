@@ -126,26 +126,41 @@ export default function LineChart(data, {
     .attr('text-anchor', 'middle')
     .attr('y', -8);
 
+  const focused_year = svg.append('g')
+    .attr('display', 'none');
+
+  focused_year.append('text')
+    .attr('font-family', 'sans-serif')
+    .attr('font-size', 16)
+    .attr('font-weight', 'bold')
+    .attr('text-anchor', 'middle')
+    .attr('fill', 'magenta')
+    .attr('y', height - 40)
+    .attr('x', width - 60);
+
   function pointermoved(event) {
     const [xm, ym] = d3.pointer(event);
     const i = d3.least(I, (i) => Math.hypot(xScale(X[i]) - xm, yScale(Y[i]) - ym)); // closest point
     path
-      .style('stroke', ([z]) => (Z[i] === z ? "magenta" : null)) // s/#ddd/null
+      .style('stroke', ([z]) => (Z[i] === z ? "magenta" : null)) // s/null/"magenta"; s/#ddd/null
       .style('stroke-width', ([z]) => (Z[i] === z ? strokeWidth * 2 : strokeWidth))
       .filter(([z]) => Z[i] === z).raise();
     dot.attr('transform', `translate(${xScale(X[i])},${yScale(Y[i])})`);
     if (T) dot.select('text').text(T[i]);
+    if (T) focused_year.select('text').text(T[i]);
     svg.property('value', O[i]).dispatch('input', { bubbles: true });
   }
 
   function pointerentered() {
     path.style('mix-blend-mode', null).style('stroke', null);
     dot.attr('display', null);
+    focused_year.attr('display', null)
   }
 
   function pointerleft() {
     path.style('mix-blend-mode', 'multiply').style('stroke', null); // s/#ddd/null/ // .style('stroke-width', strokeWidth);
     dot.attr('display', 'none');
+    focused_year.attr('display', 'none');
     svg.node().value = null;
     svg.dispatch('input', { bubbles: true });
   }
