@@ -130,8 +130,8 @@ export default function LineChart(data, {
     const [xm, ym] = d3.pointer(event);
     const i = d3.least(I, (i) => Math.hypot(xScale(X[i]) - xm, yScale(Y[i]) - ym)); // closest point
     path
-      .style('stroke', ([z]) => (Z[i] === z ? null : '#ddd'))
-      // .style('stroke-width', ([z]) => (Z[i] === z ? strokeWidth * 2 : strokeWidth))
+      .style('stroke', ([z]) => (Z[i] === z ? "magenta" : null)) // s/#ddd/null
+      .style('stroke-width', ([z]) => (Z[i] === z ? strokeWidth * 2 : strokeWidth))
       .filter(([z]) => Z[i] === z).raise();
     dot.attr('transform', `translate(${xScale(X[i])},${yScale(Y[i])})`);
     if (T) dot.select('text').text(T[i]);
@@ -139,12 +139,12 @@ export default function LineChart(data, {
   }
 
   function pointerentered() {
-    path.style('mix-blend-mode', null).style('stroke', '#ddd');
+    path.style('mix-blend-mode', null).style('stroke', null);
     dot.attr('display', null);
   }
 
   function pointerleft() {
-    path.style('mix-blend-mode', 'multiply').style('stroke', null); // .style('stroke-width', strokeWidth);
+    path.style('mix-blend-mode', 'multiply').style('stroke', null); // s/#ddd/null/ // .style('stroke-width', strokeWidth);
     dot.attr('display', 'none');
     svg.node().value = null;
     svg.dispatch('input', { bubbles: true });
